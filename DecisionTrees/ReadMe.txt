@@ -1,0 +1,1 @@
+- Use pair instead of map where two values are stored together, but random access unnecessary (micro-optimization)
