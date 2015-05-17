@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include <iostream>
 #include <string>
 #include <iterator>
@@ -125,8 +124,6 @@ int main(int argc, char** argv)
 
 	cout << "Training data\n";
 	Table train_table(train_file, args.classification_attribute, args.separator);
-
-	/*
 	TableIterator train_iter(&train_table);
 	TreeNode decision_tree(train_iter, train_table.getFeatureAttributes());
 	decision_tree.split();
@@ -147,6 +144,5 @@ int main(int argc, char** argv)
 	double percent_correct = 100.0 * ((double)num_correct) / ((double)test_table.size());
 	cout << "Results: " << num_correct << " of " << test_table.size() << " correct\n"
 		<< "Percentage correct: " << percent_correct << "\n";
-	*/
 	return 0;
 }
