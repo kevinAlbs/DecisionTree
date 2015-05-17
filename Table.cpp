@@ -4,14 +4,30 @@ using namespace std;
 
 /*
 Returns a dynamically allocated list representing the delimitted parts of a line
+If there is no more data, only comments/newlines, it returns an empty list
 */
 list<string> * Table::readLine(istream& in){
 	list<string> *line_parts = new list<string>();
+	int line_num = 1;
 	if (in){
 		string line = "";
 		string::iterator token_start, token_end;
-		//read line
+		//skip lines starting with comment # or newlines
 		char c = in.get();
+		while(c == '#' || c == '\n'){
+			while (c != '\n' && c != EOF){
+				c = in.get();
+			}
+			//if we reached end, there's nothing to return
+			if(!in){
+				return line_parts;
+			}
+			line_num++;
+			c = in.get();
+		}
+		if(!in){
+			return line_parts;
+		}
 		while (c != '\n' && c != EOF){
 			line += c;
 			c = in.get();
@@ -39,38 +55,75 @@ list<string> * Table::readLine(istream& in){
 
 /*
 Reads a data table with a classification attribute.
+Returns true on successful read, false on failure.
 */
-Table::Table(istream& in, string classification_attribute, string separator){
-	this->classification_attribute = classification_attribute;
-	this->separator = separator;
+bool Table::readLabeled(istream& in, string separator, bool no_titles, string classification_attribute){
+	return this->read(in, separator, no_titles, classification_attribute, true);
+}
 
+bool Table::readUnlabeled(istream& in, string separator, bool no_titles){
+	return this->read(in, separator, no_titles, classification_attribute, false);
+}
+
+bool Table::read(istream& in, string separator, bool no_titles, string classification_attribute, bool labeled){
+	this->separator = separator;
 	bool first = true;
-	while (in){		
+	int line_num = 1;
+	list<string>* line_parts = readLine(in);
+	while (line_parts->size() > 0){
+		//copy(line_parts->begin(), line_parts->end(), ostream_iterator<string>(cout, " "));
+		//cout << "\n";
 		if (first){
-			list<string>* line_parts = readLine(in);
-			//Create the list of attributes
-			copy(line_parts->begin(), line_parts->end(), back_inserter(this->attributes));
-			vector<string>::iterator classification_iter = find(this->attributes.begin(), this->attributes.end(), this->classification_attribute);
-			if (classification_iter == attributes.end()){
-				throw domain_error("Attribute" + this->classification_attribute + " is not among the list of provided attributes");
+			if (no_titles){
+				//create placeholder attributes
+				for (int i = 1; i <= line_parts->size(); i++){
+					this->attributes.push_back("attribute_" + i);
+				}
 			}
-			this->classification_index = classification_iter - this->attributes.begin();
-			first = false;
-			delete line_parts;
+			else{
+				//read attribute names
+				copy(line_parts->begin(), line_parts->end(), back_inserter(this->attributes));
+			}
+
+			if (labeled) {
+				if (classification_attribute == "" || no_titles){
+					//last attribute is classification attribute
+					this->classification_attribute = this->attributes[this->attributes.size() - 1];
+				}
+				else {
+					this->classification_attribute = classification_attribute;
+				}
+				this->classification_index = find(this->attributes.begin(), this->attributes.end(), this->classification_attribute) - this->attributes.begin();
+				if (this->classification_index >= this->attributes.size()){
+					//ensure it is among the attributes
+					cerr << "Attribute" + this->classification_attribute + " is not among the list of provided attributes";
+					return false;
+				}
+			}
 		}
-		else {
-			Row* r = this->readRow(in);
+
+		if (!first || no_titles) {
+			if (line_parts->size() != this->attributes.size()){
+				cerr << "Line " << line_num << " has a different number of attributes\n";
+				return false;
+			}
+			Row* r = this->makeRow(line_parts);
 			data.push_back(*r);
 			delete r;
 		}
+
+		first = false;
+		line_num++;
+		delete line_parts;
+		line_parts = readLine(in);
 	}
+	return true;
 }
 
 /*
 Returns a dynamically allocated Row.
 */
-Row* Table::readRow(istream& in){
-	list<string>* line_parts = readLine(in);
+Row* Table::makeRow(list<string>* line_parts){
 	Row* r = new Row();
 	map<string, string> m;
 	size_t index = 0;
@@ -84,7 +137,6 @@ Row* Table::readRow(istream& in){
 		index++;
 	}
 	r->data = m;
-	delete(line_parts);
 	return r;
 }
 

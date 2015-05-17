@@ -1,0 +1,6 @@
+# Unlabeled data to be classified
+#
+buying maint doors persons lug_boot safety
+vhigh med 3 2 big high
+vhigh med 3 4 med med
+vhigh med 3 4 med high

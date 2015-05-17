@@ -1,3 +1,6 @@
+#ifndef TREENODE_H
+#define TREENODE_H
+
 #include <iostream>
 #include <map>
 #include <vector>
@@ -27,3 +30,5 @@ private:
 	vector<pair<string, double>> leaf_probabilities;
 	pair<string, double> most_likely_classification;
 };
+
+#endif
