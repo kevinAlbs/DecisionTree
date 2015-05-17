@@ -13,7 +13,8 @@ using namespace std;
 struct Arguments{
 	bool help = false;
 	bool no_titles = false;
-	string file = "";
+	string train_file = "";
+	string test_file = "";
 	string classification_attribute = "";
 	string separator = " ";
 	int classification_index = -1;
@@ -50,7 +51,8 @@ void printHelp(string err=""){
 			"[-nt] [-ca <attribute>] [-sp <string>] [-ci <index>] [-h]\n";
 
 	string text[] = {
-		"(-f|--file) <input_file.txt>", "(required) Input file",
+		"(-tr|--train) <train_file.txt>", "(required) Training input file",
+		"(-te|--test) <test_file.txt>", "(required) Testing input file",
 		"(-nt|--no_titles)", "If this flag is here, it is assumed that",
 		"", "there are no attribute titles in the file. Otherwise it",
 		"", "is assumed that the first row is attribute titles",
@@ -66,12 +68,19 @@ Arguments parseArgs(int argc, char ** argv){
 		if (a == "-h" || a == "--help"){
 			args.help = true;
 		}
-		else if (a == "-f" || a == "--file"){
+		else if (a == "-tr" || a == "--train"){
 			//check that next arg is filepath
 			if (i == argc - 1){
-				throw domain_error("No file identifier passed");
+				throw domain_error("No training file identifier passed");
 			}
-			args.file = argv[++i];
+			args.train_file = argv[++i];
+		}
+		else if (a == "-te" || a == "--test"){
+			//check that next arg is filepath
+			if (i == argc - 1){
+				throw domain_error("No testing file identifier passed");
+			}
+			args.test_file = argv[++i];
 		}
 		else if (a == "-nt" || a == "--no_titles"){
 			args.no_titles = true;
@@ -98,31 +107,46 @@ int main(int argc, char** argv)
 		printHelp();
 		return 0;
 	}
-	if (args.file == ""){
-		printHelp("No valid input file identifier passed");
+	if (args.train_file == ""){
+		printHelp("No valid training file identifier passed");
+		return 1;
+	}
+	if (args.test_file == ""){
+		printHelp("No valid testing file identifier passed");
+		return 1;
 	}
 	//read file into table
-	ifstream in_file(args.file);
-	if (!in_file.is_open()){
-		printHelp("Could not open '" + args.file + "'");
+	ifstream train_file(args.train_file);
+	ifstream test_file(args.test_file);
+	if (!train_file.is_open()){
+		printHelp("Could not open '" + args.train_file + "'");
+		return 1;
 	}
 
-	Table t(in_file, args.classification_attribute, args.separator);
-	TableIterator ti(&t);
-	TreeNode root(ti, t.getFeatureAttributes());
-	root.split();
+	cout << "Training data\n";
+	Table train_table(train_file, args.classification_attribute, args.separator);
 
-	Row r;
-	map<string, string> data;
-	data["buying"] = "vhigh";
-	data["maint"] = "vhigh";
-	data["doors"] = "2";
-	data["persons"] = "4";
-	data["lug_boot"] = "small";
-	data["safety"] = "low";
-	r.data = data;
-	cout << "Classifying row as " << root.classify(r) << "\n";
+	/*
+	TableIterator train_iter(&train_table);
+	TreeNode decision_tree(train_iter, train_table.getFeatureAttributes());
+	decision_tree.split();
+
+	cout << "Testing data\n";
+	Table test_table(test_file, args.classification_attribute, args.separator);
+	TableIterator test_iter(&test_table);
+
+	unsigned int num_correct = 0;
+	while (test_iter.hasNext()){
+		Row r = test_iter.next();
+		if (decision_tree.classify(r) == r.classification){
+			//correct
+			num_correct++;
+		}
+	}
+
+	double percent_correct = 100.0 * ((double)num_correct) / ((double)test_table.size());
+	cout << "Results: " << num_correct << " of " << test_table.size() << " correct\n"
+		<< "Percentage correct: " << percent_correct << "\n";
+	*/
 	return 0;
-	
-
 }

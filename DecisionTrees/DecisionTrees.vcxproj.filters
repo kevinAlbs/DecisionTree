@@ -60,5 +60,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="car_data.csv" />
+    <None Include="car_data_test.csv">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="car_data_train.csv">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

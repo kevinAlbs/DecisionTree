@@ -98,6 +98,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="car_data.csv" />
+    <None Include="car_data_test.csv" />
+    <None Include="car_data_train.csv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

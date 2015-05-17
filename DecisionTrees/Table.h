@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <list>
 #include <string>
 #include <algorithm>
 #include "Row.h"
@@ -18,7 +19,6 @@ class Table{
 	typedef vector<vector<string> >::size_type vvs_sz;
 public:
 	Table(istream& in, string classification_attribute, string separator);
-	Row readRow(istream& in);
 	void reset();
 	vector<Row>::size_type size();
 	Row getRow(vector<Row>::size_type);
@@ -26,11 +26,12 @@ public:
 	vector<string> getFeatureAttributes();
 
 private:
+	Row* readRow(istream& in);
 	vector<Row> data;
 	vector<string> attributes;
-	vs_sz classification_index;
+	size_t classification_index;
 	string classification_attribute;
 	string separator;
-	vector<string> readLine(istream& in);
+	list<string>* readLine(istream& in);
 };
 #endif

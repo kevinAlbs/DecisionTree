@@ -1,9 +1,12 @@
 #include "Table.h"
-
+#include <time.h>
 using namespace std;
 
-vector<string> Table::readLine(istream& in){
-	vector<string> line_parts;
+/*
+Returns a dynamically allocated list representing the delimitted parts of a line
+*/
+list<string> * Table::readLine(istream& in){
+	list<string> *line_parts = new list<string>();
 	if (in){
 		string line = "";
 		string::iterator token_start, token_end;
@@ -23,7 +26,7 @@ vector<string> Table::readLine(istream& in){
 			}
 			else{
 				string part(token_start, token_end);
-				line_parts.push_back(part);
+				line_parts->push_back(part);
 			}
 			if (token_end == line.end()){
 				break;
@@ -33,8 +36,9 @@ vector<string> Table::readLine(istream& in){
 	}
 	return line_parts;
 }
+
 /*
-Reads a data table.
+Reads a data table with a classification attribute.
 */
 Table::Table(istream& in, string classification_attribute, string separator){
 	this->classification_attribute = classification_attribute;
@@ -43,40 +47,44 @@ Table::Table(istream& in, string classification_attribute, string separator){
 	bool first = true;
 	while (in){		
 		if (first){
-			vector<string> line_parts = readLine(in);
+			list<string>* line_parts = readLine(in);
 			//Create the list of attributes
-			this->attributes = line_parts;
+			copy(line_parts->begin(), line_parts->end(), back_inserter(this->attributes));
 			vector<string>::iterator classification_iter = find(this->attributes.begin(), this->attributes.end(), this->classification_attribute);
 			if (classification_iter == attributes.end()){
 				throw domain_error("Attribute" + this->classification_attribute + " is not among the list of provided attributes");
 			}
 			this->classification_index = classification_iter - this->attributes.begin();
 			first = false;
+			delete line_parts;
 		}
 		else {
-			Row r = this->readRow(in);
-			data.push_back(r);
+			Row* r = this->readRow(in);
+			data.push_back(*r);
+			delete r;
 		}
 	}
 }
 
 /*
-Reads a single row. This can only be called after the attributes have been read.
-The classification attribute is optional.
+Returns a dynamically allocated Row.
 */
-Row Table::readRow(istream& in){
-	vector<string> line_parts = readLine(in);
-	Row r;
+Row* Table::readRow(istream& in){
+	list<string>* line_parts = readLine(in);
+	Row* r = new Row();
 	map<string, string> m;
-	for (vs_sz i = 0; i < line_parts.size(); i++){
-		if (i == this->classification_index){
-			r.classification = line_parts[i];
+	size_t index = 0;
+	for (list<string>::const_iterator iter = line_parts->begin(); iter != line_parts->end(); iter++){
+		if (index == this->classification_index){
+			r->classification = *iter;
 		}
 		else {
-			m[this->attributes[i]] = line_parts[i];
+			m[this->attributes[index]] = *iter;
 		}
+		index++;
 	}
-	r.data = m;
+	r->data = m;
+	delete(line_parts);
 	return r;
 }
 
