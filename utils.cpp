@@ -34,22 +34,22 @@ int printHelp(string err){
 	if (err != ""){
 		cout << "Error: " << err << endl;
 	}
-	cout << "Usage ./DecisionTrees -f <input_file.txt>"
+	cout << "Usage ./DecisionTrees -tr <file> -te <file> -cl <file>"
 			"[-nt] [-ca <attribute>] [-sp <string>] [-ci <index>] [-h]\n";
 
 	string text[] = {
 		"(-tr|--train) <train_file>", "(required) Labeled training input file",
 		"(-te|--test) <test_file>", "(required) Labeled testing input file",
-		"(-cl|--classify) <input_file> <output_file>", "Unlabeled input file to be classified",
+		"(-cl|--classify) <infile> <outfile>", "Unlabeled input file to be classified",
 		"", "Resulting classified data is saved in <output_file>",
 		"-sp", "Delimitter of attribute values, default is space",
 		"(-nt|--no_titles)", "If this flag is here, it is assumed that",
 		"", "there are no attribute titles in the file. Otherwise it",
 		"", "is assumed that the first row is attribute titles",
-		"(-ca|--classificaton_attriute) <attribute>", "The name of the attribute",
-		"", "for classification. If omitted, it is assumed to be the last attribute"
+		"(-ca|--classificaton_attriute) <attribute>", "The name of the attribute for classification.",
+		"", "If omitted, it is assumed to be the last attribute"
 	};
-	lineUp(text, 6, 2);
+	lineUp(text, 10, 2);
 	if(err != ""){
 		return 1;
 	} else {

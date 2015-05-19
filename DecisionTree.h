@@ -12,7 +12,6 @@ public:
   int train(string train_filename);
   pair<int, int> testLabeled(string test_filename);
   int classifyUnlabeled(string unlabeled_filename, string output_filename);
-  void readAndClassifyRow();
 private:
   Table *train_table = NULL;
   TreeNode *root = NULL;

@@ -115,6 +115,3 @@ int DecisionTree::classifyUnlabeled(string unlabeled_filename, string output_fil
 
   return classify_table.size();
 }
-void readAndClassifyRow(){
-  return;
-};
